@@ -1,0 +1,42 @@
+---
+- name: expand mount path
+  set_fact:
+    mount_dir: "{{ vg_share_mount | expanduser }}"
+
+- name: derive systemd unit name
+  set_fact:
+    unit_name: "{{ mount_dir | regex_replace('^/') | replace('/','-') }}"
+
+- name: create mount point
+  file:
+    path: "{{ mount_dir }}"
+    state: directory
+
+- name: create systemd mount unit
+  template:
+    src: mount-unit.j2
+    dest: /etc/systemd/system/{{ unit_name }}.mount
+    owner: "{{ ansible_user_id }}"
+    group: root
+    mode: 0640
+  become: yes
+  register: systemd_unit
+
+- debug:
+    msg: "systemd unit name: {{ unit_name }}.mount"
+
+- name: activate systemd unit
+  systemd:
+    name: "{{ unit_name }}.mount"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  become: yes
+
+- name: restart systemd to accept changes
+  systemd:
+    name: "{{ unit_name }}.mount"
+    state: restarted
+  become: yes
+  when: systemd_unit is changed
+...

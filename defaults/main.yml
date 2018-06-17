@@ -1,0 +1,14 @@
+---
+# defaults file for vagrant-share
+vg_share_host: 192.168.1.1
+vg_share_name: ''
+vg_share_user: "{{ ansible_user_id }}"
+vg_share_pass: secret_pass
+vg_share_mount: ~/shares/host
+
+vg_share_uid: "{{ ansible_user_uid }}"
+vg_share_gid: "{{ ansible_user_gid }}"
+
+vg_share_depend_on: network-online.target
+vg_share_install_on: multi-user.target
+...

@@ -1,0 +1,22 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: "Ivan Andreev"
+  description: "Creates a CIFS mount of temporary developer directory from vagrant host."
+  company: "IvanSible"
+  license: MIT
+  min_ansible_version: 2.5
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+
+  galaxy_tags:
+    - developer
+    - vagrant
+    - samba
+    - cifs
+...
