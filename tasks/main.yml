@@ -1,42 +1,61 @@
 ---
+- name: gather facts
+  setup:
+
+- name: install cifs tools
+  apt:
+    name: cifs-utils
+    state: present
+  become: yes
+
+- name: credentials files path
+  set_fact:
+    vg_mount_cred_file: ~/.vagrant-share-credentials
+
+- name: record credentials in a file
+  copy:
+    content: |
+      username={{ vg_share_user }}
+      password={{ vg_share_pass }}
+    dest: "{{ vg_mount_cred_file }}"
+    owner: "{{ vg_share_uid }}"
+    mode: 0600
+
 - name: expand mount path
   set_fact:
-    mount_dir: "{{ vg_share_mount | expanduser }}"
-
-- name: derive systemd unit name
-  set_fact:
-    unit_name: "{{ mount_dir | regex_replace('^/') | replace('/','-') }}"
+    vg_mount_dir: "{{ vg_share_mount | expanduser }}"
 
 - name: create mount point
   file:
-    path: "{{ mount_dir }}"
+    path: "{{ vg_mount_dir }}"
     state: directory
-
-- name: create systemd mount unit
-  template:
-    src: mount-unit.j2
-    dest: /etc/systemd/system/{{ unit_name }}.mount
-    owner: "{{ ansible_user_id }}"
-    group: root
-    mode: 0640
-  become: yes
-  register: systemd_unit
-
-- debug:
-    msg: "systemd unit name: {{ unit_name }}.mount"
-
-- name: activate systemd unit
-  systemd:
-    name: "{{ unit_name }}.mount"
-    state: started
-    enabled: yes
-    daemon_reload: yes
+    owner: "{{ vg_share_uid }}"
+    mode: 0750
   become: yes
 
-- name: restart systemd to accept changes
-  systemd:
-    name: "{{ unit_name }}.mount"
-    state: restarted
+- name: set mount options
+  set_fact:
+    mount_opts:
+      - rw
+      - noauto
+      - x-systemd.automount
+      - uid={{ vg_share_uid }}
+      - gid={{ vg_share_gid }}
+      - credentials={{ vg_mount_cred_file | expanduser }}
+      - vers=2.0
+      - iocharset=utf8
+      - file_mode=0644
+      - dir_mode=0755
+      #- cache=none
+
+
+- name: modify fstab
+  mount:
+    path: "{{ vg_mount_dir }}"
+    fstype: cifs
+    src: //{{ vg_share_host }}/{{ vg_share_name }}
+    opts: "{{ mount_opts | join(',') }}"
+    state: mounted
   become: yes
-  when: systemd_unit is changed
+  notify: activate systemd mounts
 ...
