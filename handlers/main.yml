@@ -7,6 +7,6 @@
     state: restarted
     daemon_reload: yes
   become: yes
-  # expected error: "path is already a mount point, refusing start"
-  ignore_errors: yes
+  # possible error: "path is already a mount point, refusing start"
+  #ignore_errors: yes
 ...

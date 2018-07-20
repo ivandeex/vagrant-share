@@ -3,6 +3,7 @@
   setup:
 
 - name: install cifs tools
+  # systemd mounter will require /sbin/mount.cifs
   apt:
     name: cifs-utils
     state: present
@@ -55,7 +56,8 @@
     fstype: cifs
     src: //{{ vg_share_host }}/{{ vg_share_name }}
     opts: "{{ mount_opts | join(',') }}"
-    state: mounted
+    # we don't need "mounted" because we setup automount
+    state: present
   become: yes
   notify: activate systemd mounts
 ...
