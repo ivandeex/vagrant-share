@@ -61,9 +61,32 @@ None
 None
 
 
+## Implementation Details
+
+Manual creation of systemd mount/automount units requires hard-coding a mount path
+in the unit file name (I deem it rather bad practice)
+so we use ansible [mount module](https://docs.ansible.com/ansible/latest/modules/mount_module.html#mount-module)
+and kick systemd indirectly via a specially krafted line in `/etc/fstab`.
+
+Instead of direct mount (`mount state=mounted`) we kick systemd automounter
+by including the specific [x-systemd.automount](https://askubuntu.com/questions/593174/x-systemd-automount-cifs-shares-in-fstab/859158#859158) option in the ``/etc/fstab`` mount line.
+Wise people [recommend](https://askubuntu.com/questions/593174/x-systemd-automount-cifs-shares-in-fstab/859158#859158) to
+daemon-reload systemd and restart the `remote-fs` target to activate automounter.
+The mount will activate upon first use. We even disable on-boot mounting via the
+`noauto` option. If we told [mount module state=`mounted`](https://docs.ansible.com/ansible/latest/modules/mount_module.html#mount-module) to activate the mount immediately,
+systemd automount would give an error, so we set state to just `present` in /etc/fstab.
+
+At any rate [systemd will require](http://manpages.ubuntu.com/manpages/xenial/man5/systemd.mount.5.html)
+/sbin/mount.cifs so we install the `cifs-utils` package.
+
+Since fstab is world-readable, we put [cifs credentials](https://serverfault.com/questions/367934/how-do-i-pass-credential-file-to-mount-cifs/367942#367942)
+in a file with limited access.
+
+
 ## Running
 
     ./scripts/run-role vagrant-share dock1
+
 
 ## License
 
