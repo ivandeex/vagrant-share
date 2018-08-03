@@ -85,7 +85,7 @@ in a file with limited access.
 
 ## Running
 
-    ./scripts/run-role vagrant-share dock1
+    ./scripts/run-role vagrant-share vag1
 
 
 ## License
