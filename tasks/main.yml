@@ -2,12 +2,29 @@
 - name: gather facts
   setup:
 
-- name: install cifs tools
-  # systemd mounter will require /sbin/mount.cifs
+- name: install cifs tools and utf8 filesystem charset
   apt:
-    name: cifs-utils
+    name:
+      # systemd mounter will require /sbin/mount.cifs
+      - cifs-utils
+      # mounting with utf8 nls charset requires extra kernel modules
+      # see:
+      #   https://github.com/chef/bento/issues/804
+      #   https://askubuntu.com/questions/519796/unable-to-mount-cifs-with-iocharset-utf8-in-trusty
+      #   https://superuser.com/questions/682362/unicode-characters-in-ubuntu-server
+      - linux-image-extra-virtual
     state: present
+    # --no-install-recommends minimizes the install
+    # if the problem persists, reinstall with the recommends
+    install_recommends: no
   become: yes
+  register: apt_result
+
+- name: activate the utf8 fs charset kernel module
+  command: /sbin/modprobe nls_utf8
+  become: yes
+  ignore_errors: yes
+  when: apt_result is changed
 
 - name: credentials files path
   set_fact:
