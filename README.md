@@ -1,4 +1,4 @@
-# Role ivansible.vagrant-share
+# ivansible.vagrant_share
 
 Creates a CIFS mount of temporary developer directory from vagrant host.
 
@@ -85,7 +85,7 @@ in a file with limited access.
 
 ## Running
 
-    ./scripts/run-role vagrant-share vag1
+    ./scripts/run-role .vagrant-share vag1
 
 
 ## License

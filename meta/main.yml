@@ -2,8 +2,9 @@
 dependencies: []
 
 galaxy_info:
+  role_name: vagrant_share
   author: "Ivan Andreev"
-  description: "Creates a CIFS mount of temporary developer directory from vagrant host."
+  description: "Create a CIFS mount of temporary developer directory from vagrant host."
   company: "IvanSible"
   license: MIT
   min_ansible_version: 2.5
