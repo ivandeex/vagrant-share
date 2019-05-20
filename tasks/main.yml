@@ -20,7 +20,7 @@
   become: yes
   register: apt_result
 
-- name: activate the utf8 fs charset kernel module
+- name: activate the utf8 fs charset kernel module (ok to fail, if no such module)
   command: /sbin/modprobe nls_utf8
   become: yes
   ignore_errors: yes
