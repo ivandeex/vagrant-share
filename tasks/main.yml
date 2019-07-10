@@ -17,6 +17,7 @@
     # --no-install-recommends minimizes the install
     # if the problem persists, reinstall with the recommends
     install_recommends: no
+    update_cache: yes
   become: yes
   register: apt_result
 
